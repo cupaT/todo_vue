@@ -1,0 +1,107 @@
+@use 'sass:color';
+@use 'sass:math';
+@use 'variables' as v;
+
+.modal {
+  display: flex;
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.38);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(2px);
+}
+
+.modal__form,
+.modal__content {
+  padding: 2.2em 2.2em 1.7em 2.2em;
+  border-radius: v.$border-radius;
+  min-width: 330px;
+  max-width: 95vw;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2em;
+  align-items: stretch;
+  border: none;
+  box-sizing: border-box;
+  transition: background v.$transition, color v.$transition;
+}
+
+body.dark-theme .modal__form,
+body.dark-theme .modal__content {
+  background: v.$color-bg-dark;
+  color: v.$color-text-dark;
+  box-shadow: 0 12px 48px -8px rgba(v.$color-accent-dark, 0.38);
+}
+
+body.light-theme .modal__form,
+body.light-theme .modal__content {
+  background: v.$color-bg-light;
+  color: v.$color-text-light;
+  box-shadow: 0 12px 48px -8px rgba(v.$color-accent, 0.28);
+}
+
+.modal__form input[type="text"],
+.modal__content input[type="text"],
+.modal__form input[type="search"],
+.modal__content input[type="search"] {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 0.7em 1.4em;
+  font-size: 1.12em;
+  border: none;
+  border-radius: v.$border-radius;
+  outline: none;
+  margin-bottom: 1em;
+  transition: box-shadow v.$transition, background v.$transition, color v.$transition;
+}
+
+body.dark-theme .modal__form input[type="text"],
+body.dark-theme .modal__content input[type="text"],
+body.dark-theme .modal__form input[type="search"],
+body.dark-theme .modal__content input[type="search"] {
+  background: v.$color-bg-dark;
+  color: v.$color-text-dark;
+  box-shadow: 0 2px 8px -2px rgba(v.$color-accent-dark, 0.13);
+
+  &::placeholder {
+    color: v.$color-accent;
+    opacity: 0.9;
+    font-style: italic;
+    letter-spacing: 0.02em;
+  }
+  &:focus {
+    box-shadow: 0 4px 16px -2px rgba(v.$color-accent-dark, 0.19);
+    background: color.adjust(v.$color-bg-dark, $lightness: 4%);
+    color: v.$color-text-dark;
+  }
+}
+
+body.light-theme .modal__form input[type="text"],
+body.light-theme .modal__content input[type="text"],
+body.light-theme .modal__form input[type="search"],
+body.light-theme .modal__content input[type="search"] {
+  background: v.$color-bg-light;
+  color: v.$color-text-light;
+  box-shadow: 0 2px 8px -2px rgba(v.$color-accent, 0.08);
+
+  &::placeholder {
+    color: v.$color-accent-light;
+    opacity: 1;
+    font-style: italic;
+    letter-spacing: 0.02em;
+  }
+  &:focus {
+    box-shadow: 0 4px 16px -2px rgba(v.$color-accent, 0.18);
+    background: color.adjust(v.$color-bg-light, $lightness: 2%);
+    color: v.$color-text-light;
+  }
+}
+
+.modal__actions {
+  display: flex;
+  gap: 1.1em;
+  justify-content: flex-end;
+}

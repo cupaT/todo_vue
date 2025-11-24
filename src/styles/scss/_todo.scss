@@ -1,0 +1,118 @@
+@use 'sass:math';
+@use 'variables' as v;
+
+.todo-card {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  padding: 1em 1.2em;
+  margin-bottom: 1em;
+  box-sizing: border-box;
+  border-radius: v.$border-radius;
+  font-size: 1.08em;
+  transition: background v.$transition, box-shadow v.$transition, transform v.$transition;
+
+  body.dark-theme & {
+    background: v.$color-card-dark;
+    color: v.$color-text-dark;
+    box-shadow: 0 2px 8px -2px rgba(v.$color-accent, 0.09);
+    border: none;
+  }
+  body.light-theme & {
+    background: v.$color-card-light;
+    color: v.$color-text-light;
+    box-shadow: 0 2px 8px -2px rgba(v.$color-accent-light, 0.08);
+    border: none;
+  }
+
+  .checkbox-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    margin-right: 0.5em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    border-radius: math.div(v.$border-radius, 2);
+    transition: background v.$transition;
+    outline: none;
+
+    svg {
+      width: 1.6em;
+      height: 1.6em;
+      display: block;
+      transition: stroke 0.15s, box-shadow 0.15s;
+    }
+
+    &:hover,
+    &:focus {
+      background: rgba(v.$color-accent, 0.07);
+      svg circle {
+        stroke: v.$color-accent-dark;
+      }
+    }
+  }
+
+  .todo-title {
+    flex: 1;
+    font-weight: 500;
+    transition: color v.$transition, text-decoration v.$transition;
+    word-break: break-word;
+  }
+
+  &.done .todo-title {
+    text-decoration: line-through;
+    body.dark-theme & {
+      color: v.$color-border-dark;
+    }
+    body.light-theme & {
+      color: v.$color-border-light;
+    }
+  }
+
+  .edit-btn, .delete-btn {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 0.2em 0.5em;
+    border-radius: math.div(v.$border-radius, 2);
+    display: flex;
+    align-items: center;
+    transition: background v.$transition, color v.$transition, box-shadow v.$transition;
+    svg {
+      width: 1.5em;
+      height: 1.5em;
+      vertical-align: middle;
+      pointer-events: none;
+      transition: stroke 0.15s;
+    }
+    &:hover, &:focus {
+      background: v.$color-accent;
+      svg circle, svg path {
+        stroke: #fff;
+      }
+    }
+    body.light-theme & {
+      &:hover, &:focus {
+        background: v.$color-accent-light;
+        svg circle, svg path {
+          stroke: #fff;
+        }
+      }
+    }
+    body.dark-theme & {
+      &:hover, &:focus {
+        background: v.$color-accent-dark;
+        svg circle, svg path {
+          stroke: #fff;
+        }
+      }
+    }
+  }
+
+  &:hover, &:focus-within {
+    box-shadow: 0 4px 16px -2px v.$color-accent;
+    transform: translateY(-2px) scale(1.01);
+  }
+}

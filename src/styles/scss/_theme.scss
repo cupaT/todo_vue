@@ -1,0 +1,17 @@
+@use 'variables' as v;
+
+body {
+  font-family: v.$font-main;
+  font-size: 1.05em;
+  transition: background v.$transition, color v.$transition;
+}
+
+body.dark-theme {
+  background: v.$color-bg-dark;
+  color: v.$color-text-dark;
+}
+
+body.light-theme {
+  background: v.$color-bg-light;
+  color: v.$color-text-light;
+}

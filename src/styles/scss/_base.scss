@@ -1,0 +1,83 @@
+@use 'sass:color';
+@use 'sass:math';
+@use 'variables' as v;
+
+button, .modal__actions button {
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  font-size: 1.08em;
+  padding: 0.7em 1.6em;
+  cursor: pointer;
+  border: none;
+  border-radius: v.$border-radius;
+  box-shadow: 0 2px 8px -2px rgba(v.$color-accent, 0.15);
+  transition:
+          background v.$transition,
+          color v.$transition,
+          box-shadow v.$transition,
+          transform v.$transition;
+}
+
+body.dark-theme button, body.dark-theme .modal__actions button {
+  background: linear-gradient(135deg, v.$color-accent 0%, v.$color-accent-dark 100%);
+  color: #fff;
+  &:hover, &:focus {
+    background: linear-gradient(135deg, v.$color-accent-dark 0%, v.$color-accent 100%);
+    color: #fff;
+    box-shadow: 0 4px 16px -2px rgba(v.$color-accent, 0.25);
+    transform: translateY(-2px) scale(1.03);
+  }
+}
+
+body.light-theme button, body.light-theme .modal__actions button {
+  background: linear-gradient(135deg, v.$color-accent-light 0%, v.$color-accent 100%);
+  color: #fff;
+  &:hover, &:focus {
+    background: linear-gradient(135deg, v.$color-accent 0%, v.$color-accent-light 100%);
+    color: #fff;
+  }
+}
+
+#search {
+  width: 100%;
+  max-width: 380px;
+  margin: 2.2em auto;
+  display: block;
+  padding: 0.7em 1.4em;
+  font-size: 1.12em;
+  border: none;
+  border-radius: v.$border-radius;
+  outline: none;
+  box-shadow: 0 2px 8px -2px rgba(v.$color-accent, 0.08);
+  transition: box-shadow v.$transition, background v.$transition, color v.$transition;
+}
+
+body.dark-theme #search {
+  background: v.$color-bg-dark;
+  color: v.$color-text-dark;
+  &::placeholder {
+    color: v.$color-accent;
+    opacity: 0.9;
+    font-style: italic;
+  }
+  &:focus {
+    box-shadow: 0 4px 16px -2px rgba(v.$color-accent-dark, 0.19);
+    background: color.adjust(v.$color-bg-dark, $lightness: 4%);
+    color: v.$color-text-dark;
+  }
+}
+
+body.light-theme #search {
+  background: v.$color-bg-light;
+  color: v.$color-text-light;
+  &::placeholder {
+    color: v.$color-accent-light;
+    opacity: 1;
+    font-style: italic;
+  }
+  &:focus {
+    box-shadow: 0 4px 16px -2px rgba(v.$color-accent, 0.18);
+    background: color.adjust(v.$color-bg-light, $lightness: 2%);
+    color: v.$color-text-light;
+  }
+}

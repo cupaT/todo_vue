@@ -1,81 +1,47 @@
 <template>
   <div>
-    <header>
+    <header class="app-header">
       <h1>To-Do List</h1>
-      <ThemeToggle :isDark="isDarkTheme" @toggle="toggleTheme" />
+
+      <nav class="app-nav">
+        <router-link to="/login" v-if="!isAuthenticated">Вход</router-link>
+        <router-link to="/register" v-if="!isAuthenticated">Регистрация</router-link>
+        <router-link to="/todo" v-if="isAuthenticated">Задачи</router-link>
+        <router-link to="/about" v-if="isAuthenticated">О приложении</router-link>
+        <router-link to="/profile" v-if="isAuthenticated">Профиль</router-link>
+      </nav>
+
+      <div class="app-header__actions">
+        <ThemeToggle :isDark="isDarkTheme" @toggle="toggleTheme" />
+        <button
+            v-if="isAuthenticated"
+            type="button"
+            class="logout-btn"
+            @click="handleLogout"
+        >
+          Выйти
+        </button>
+      </div>
     </header>
 
     <main>
-      <SearchBar v-model="searchQuery" />
-
-      <section>
-        <div class="actions">
-          <button @click="openAddModal">Добавить задачу</button>
-          <button @click="openConfirmModal">Очистить все</button>
-        </div>
-
-        <TodoList
-            :tasks="filteredActiveTasks"
-            @toggle-done="toggleDone"
-            @edit="openEditModal"
-            @delete="deleteTask"
-        />
-
-        <h2>Выполненные задачи</h2>
-        <TodoList
-            :tasks="filteredDoneTasks"
-            @toggle-done="toggleDone"
-            @edit="openEditModal"
-            @delete="deleteTask"
-        />
-      </section>
+      <router-view />
     </main>
-
-    <!-- Модалка добавления/редактирования задачи -->
-    <AddTodoModal
-        v-if="isTaskModalOpen"
-        :initialTitle="editingTask ? editingTask.title : ''"
-        @save="handleSaveTask"
-        @close="closeTaskModal"
-    />
-
-    <!-- Модалка подтверждения очистки списка -->
-    <div
-        v-if="isConfirmModalOpen"
-        class="modal"
-        @click.self="closeConfirmModal"
-    >
-      <div class="modal__content">
-        <span>Вы уверены, что хотите удалить все задачи?</span>
-        <div class="modal__actions">
-          <button type="button" @click="clearAll">Удалить</button>
-          <button type="button" @click="closeConfirmModal">Отмена</button>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import ThemeToggle from './components/ThemeToggle.vue';
-import SearchBar from './components/SearchBar.vue';
-import TodoList from './components/TodoList.vue';
-import AddTodoModal from './components/AddTodoModal.vue';
+import { useUserStore } from './stores/userStore.js';
 
-// ключи для localStorage
-const TASKS_KEY = 'tasks';
 const THEME_KEY = 'theme';
 
-// основное состояние приложения
-const tasks = ref([]);
-const searchQuery = ref('');
-const isDarkTheme = ref(true);
+const router = useRouter();
+const userStore = useUserStore();
 
-// состояние модальных окон
-const isTaskModalOpen = ref(false);
-const isConfirmModalOpen = ref(false);
-const editingTask = ref(null); // null — создаём новую задачу
+const isDarkTheme = ref(true);
 
 // применение текущей темы к body
 const applyThemeToBody = () => {
@@ -88,35 +54,14 @@ const toggleTheme = () => {
   isDarkTheme.value = !isDarkTheme.value;
 };
 
-// начальная загрузка задач и темы
+const isAuthenticated = computed(() => userStore.isAuthenticated);
+
+// начальная загрузка темы
 onMounted(() => {
-  const savedTasks = localStorage.getItem(TASKS_KEY);
-  if (savedTasks) {
-    try {
-      tasks.value = JSON.parse(savedTasks);
-    } catch {
-      tasks.value = [];
-    }
-  }
-
   const savedTheme = localStorage.getItem(THEME_KEY);
-  if (savedTheme === 'light') {
-    isDarkTheme.value = false;
-  } else {
-    isDarkTheme.value = true;
-  }
-
+  isDarkTheme.value = savedTheme !== 'light';
   applyThemeToBody();
 });
-
-// сохранение задач в localStorage
-watch(
-    tasks,
-    (val) => {
-      localStorage.setItem(TASKS_KEY, JSON.stringify(val));
-    },
-    { deep: true }
-);
 
 // сохранение темы и применение к body
 watch(isDarkTheme, (val) => {
@@ -124,96 +69,65 @@ watch(isDarkTheme, (val) => {
   applyThemeToBody();
 });
 
-// задачи, отфильтрованные по строке поиска (активные)
-const filteredActiveTasks = computed(() =>
-    tasks.value.filter(
-        (t) =>
-            !t.done &&
-            t.title.toLowerCase().includes(searchQuery.value.toLowerCase())
-    )
-);
-
-// задачи, отфильтрованные по строке поиска (выполненные)
-const filteredDoneTasks = computed(() =>
-    tasks.value.filter(
-        (t) =>
-            t.done &&
-            t.title.toLowerCase().includes(searchQuery.value.toLowerCase())
-    )
-);
-
-// добавление новой задачи
-const addTask = (title) => {
-  tasks.value.push({
-    id: Date.now(),
-    title,
-    done: false,
-  });
-};
-
-// обновление существующей задачи
-const updateTask = (id, title) => {
-  tasks.value = tasks.value.map((t) =>
-      t.id === id ? { ...t, title } : t
-  );
-};
-
-// удаление задачи
-const deleteTask = (id) => {
-  tasks.value = tasks.value.filter((t) => t.id !== id);
-};
-
-// переключение статуса выполнения
-const toggleDone = (id) => {
-  tasks.value = tasks.value.map((t) =>
-      t.id === id ? { ...t, done: !t.done } : t
-  );
-};
-
-// открытие модалки для создания задачи
-const openAddModal = () => {
-  editingTask.value = null;
-  isTaskModalOpen.value = true;
-};
-
-// открытие модалки для редактирования задачи
-const openEditModal = (task) => {
-  editingTask.value = { ...task };
-  isTaskModalOpen.value = true;
-};
-
-// закрытие модалки задачи
-const closeTaskModal = () => {
-  isTaskModalOpen.value = false;
-  editingTask.value = null;
-};
-
-// сохранение задачи из модалки (создание или обновление)
-const handleSaveTask = (title) => {
-  const trimmed = title.trim();
-  if (!trimmed) return;
-
-  if (editingTask.value) {
-    updateTask(editingTask.value.id, trimmed);
-  } else {
-    addTask(trimmed);
-  }
-  closeTaskModal();
-};
-
-// открытие модалки подтверждения очистки
-const openConfirmModal = () => {
-  isConfirmModalOpen.value = true;
-};
-
-// закрытие модалки подтверждения очистки
-const closeConfirmModal = () => {
-  isConfirmModalOpen.value = false;
-};
-
-// полная очистка списка задач
-const clearAll = () => {
-  tasks.value = [];
-  closeConfirmModal();
+// выход пользователя
+const handleLogout = () => {
+  userStore.logout();
+  router.push({ name: 'login' });
 };
 </script>
+
+<style scoped>
+.app-header {
+  padding: 2.5em 0 1.5em 0;
+  text-align: center;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 2.8em;
+  font-weight: 900;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: #3a8bfd;
+  text-shadow: 0 2px 8px rgba(58, 139, 253, 0.1);
+}
+
+.app-nav {
+  margin-top: 1em;
+  display: flex;
+  justify-content: center;
+  gap: 1em;
+  flex-wrap: wrap;
+}
+
+.app-nav a {
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.3em 0.9em;
+  border-radius: 999px;
+  transition: background 0.15s, color 0.15s;
+}
+
+body.dark-theme .app-nav a {
+  color: #fff;
+}
+
+body.light-theme .app-nav a {
+  color: #111;
+}
+
+.app-nav a.router-link-active {
+  background: rgba(58, 139, 253, 0.25);
+}
+
+.app-header__actions {
+  margin-top: 1.2em;
+  display: flex;
+  justify-content: center;
+  gap: 1em;
+}
+
+.logout-btn {
+  font-weight: 600;
+}
+</style>

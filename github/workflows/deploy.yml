@@ -3,7 +3,7 @@ name: Build and Deploy To-Do Vue App
 on:
   push:
     branches:
-      - main  # или master, если у тебя другая основная ветка
+      - master
 
 permissions:
   contents: read
